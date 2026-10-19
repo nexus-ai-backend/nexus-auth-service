@@ -27,4 +27,8 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run Django checks
+        env:
+            SECRET_KEY: "ci-only-dummy-secret-key-not-for-production"
+            DEBUG: "False"
+            ALLOWED_HOSTS: "localhost,127.0.0.1"
         run: python manage.py check
