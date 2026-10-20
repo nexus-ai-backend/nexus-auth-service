@@ -12,6 +12,31 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: nexus_auth_db
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+          
+    env:
+      SECRET_KEY: "ci-only-dummy-secret-key-not-for-production"
+      DEBUG: "False"
+      ALLOWED_HOSTS: "localhost,127.0.0.1"
+      DB_NAME: nexus_auth_db
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_HOST: localhost
+      DB_PORT: "5432"
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -27,15 +52,7 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run Django checks
-        env:
-            SECRET_KEY: "ci-only-dummy-secret-key-not-for-production"
-            DEBUG: "False"
-            ALLOWED_HOSTS: "localhost,127.0.0.1"
         run: python manage.py check
 
       - name: Run Django tests
-        env:
-            SECRET_KEY: "ci-only-dummy-secret-key-not-for-production"
-            DEBUG: "False"
-            ALLOWED_HOSTS: "localhost,127.0.0.1"
         run: python manage.py test
